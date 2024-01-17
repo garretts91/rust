@@ -64,8 +64,10 @@ fn create_sop_expression(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) -> S
 
 // Function to remove trailing " + " from the expression
 fn remove_trailing_plus(expression: &mut String) {
-    expression.pop();
-    expression.pop();
+    if expression.ends_with(" + ") {
+        expression.pop();
+        expression.pop();
+    }
 }
 
 // Function to generate Sum of Products logic expression from a truth table
