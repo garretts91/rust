@@ -103,7 +103,7 @@ fn generate_and_print_truth_table(variables: &Vec<char>, truth_table: &Vec<Vec<u
 }
 
 // Function to generate and print the Sum of Products logic expression
-fn generate_and_print_sop_expression(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) {
+fn generate_and_print_sum_of_products(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) {
     let sop_expression = sum_of_products(truth_table, variables);
     println!("Logic Expression (Sum of Products): {}", sop_expression);
 }
@@ -120,5 +120,5 @@ fn main() {
     generate_and_print_truth_table(&variable_labels, &truth_table);
 
     // Generate and print the Sum of Products logic expression
-    generate_and_print_sop_expression(&truth_table, &variable_labels);
+    generate_and_print_sum_of_products(&truth_table, &variable_labels);
 }
