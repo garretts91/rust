@@ -1,73 +1,96 @@
+use std::collections::HashMap;
 use std::io;
 
-// Function to generate the Sum of Products logic expression from a truth table
-fn sum_of_products(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) -> String {
-    truth_table
-        .iter()
-        .map(|row| {
-            row.iter().enumerate().fold(String::new(), |mut term, (i, &value)| {
-                if value == 0 {
-                    term.push('/');
-                }
-                term.push(variables[i]);
-                term
-            })
-        })
-        .collect::<Vec<String>>()
-        .join(" + ")
-}
+fn main() {
+    // Get the logic expression as input
+    println!("Enter the logic expression:");
+    let mut expression = String::new();
+    io::stdin().read_line(&mut expression).expect("Failed to read line");
 
-// Function to remove trailing " + " from the expression
-fn remove_trailing_plus(expression: &str) -> String {
-    let mut modified_expression = expression.to_string();
-    if modified_expression.ends_with(" + ") {
-        modified_expression.pop();
-        modified_expression.pop();
-    }
-    modified_expression
-}
+    // Remove leading and trailing whitespaces
+    let expression = expression.trim();
 
-// Function to read the number of variables from the user with error handling
-fn read_num_variables() -> Result<usize, String> {
-    println!("Enter the number of variables (up to 4): ");
-    let mut num_variables = String::new();
-    io::stdin().read_line(&mut num_variables).map(|_| {
-        num_variables.trim().parse().map_err(|err| err.to_string())
-    }).map_err(|err| err.to_string())
-}
+    // Deduce the number of variables from the expression
+    let num_variables = expression.chars().filter(|&c| c.is_ascii_alphabetic()).count();
 
-// Function to read truth table rows from the user with error handling
-fn read_truth_table_rows() -> Vec<Vec<u8>> {
-    println!("Enter the truth table rows separated by commas: ");
-    let mut input_rows = String::new();
-    io::stdin().read_line(&mut input_rows).expect("Failed to read line");
+    // Create a HashMap to store variable assignments
+    let mut variable_values = HashMap::new();
 
-    let rows: Result<Vec<_>, _> = input_rows
+    // Get the truth table as input
+    println!("Enter the truth table rows separated by commas:");
+    let mut table_input = String::new();
+    io::stdin().read_line(&mut table_input).expect("Failed to read line");
+
+    // Parse truth table rows and populate the variable values HashMap
+    let truth_table: Vec<Vec<u8>> = table_input
         .split(',')
-        .map(|row| row.trim().chars().map(|c| c.to_digit(10).ok_or("Invalid digit").map(|d| d as u8)).collect())
+        .map(|row| {
+            let values: Vec<u8> = row.trim().split_whitespace().map(|val| val.parse().unwrap()).collect();
+            for (i, &value) in values.iter().enumerate() {
+                variable_values.insert((b'A' + i as u8) as char, value);
+            }
+            values
+        })
         .collect();
 
-    rows.expect("Invalid input")
+    // Display the truth table
+    println!("Truth Table:");
+    display_truth_table_header(num_variables);
+    display_truth_table_divider(num_variables);
+
+    for row in &truth_table {
+        display_truth_table_row(row);
+    }
+
+    // Display the logic expression (Sum of Products)
+    let sop_expression = generate_sop_expression(&truth_table, &variable_values);
+    println!("\nLogic Expression (Sum of Products): {}", sop_expression);
 }
 
-// Function to generate and print the Sum of Products logic expression without cloning
-fn generate_and_print_sum_of_products(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) {
-    let sop_expression = sum_of_products(truth_table, variables);
-    let modified_expression = remove_trailing_plus(&sop_expression);
-    println!("Logic Expression (Sum of Products): {}", modified_expression);
+fn display_truth_table_header(num_variables: usize) {
+    print!("| ");
+    for i in 0..num_variables {
+        print!("{} ", (b'A' + i as u8) as char);
+    }
+    println!("| F");
 }
 
-fn main() {
-    match read_num_variables() {
-        Ok(num_variables) => {
-            let truth_table = read_truth_table_rows();
+fn display_truth_table_divider(num_variables: usize) {
+    print!("|");
+    for _ in 0..num_variables {
+        print!("---");
+    }
+    println!("|---");
+}
 
-            let variable_labels: Vec<char> = (b'A'..(b'A' + num_variables as u8)).map(char::from).collect();
-            generate_and_print_sum_of_products(&truth_table, &variable_labels);
-        }
-        Err(err) => {
-            println!("Error: {}", err);
-            std::process::exit(1);
+fn display_truth_table_row(row: &[u8]) {
+    print!("| ");
+    for val in row {
+        print!("{} ", val);
+    }
+    println!("|");
+}
+
+fn generate_sop_expression(truth_table: &Vec<Vec<u8>>, variable_values: &HashMap<char, u8>) -> String {
+    let mut sop_expression = String::new();
+
+    for (index, row) in truth_table.iter().enumerate() {
+        if row.last() == Some(&1) {
+            let mut term = String::new();
+            for (i, &val) in row.iter().enumerate() {
+                let variable = (b'A' + i as u8) as char;
+                if val == 0 {
+                    term.push('/');
+                }
+                term.push(variable);
+                term.push_str(&variable_values[&variable].to_string());
+            }
+            sop_expression.push_str(&term);
+            if index < truth_table.len() - 1 {
+                sop_expression.push_str(" + ");
+            }
         }
     }
+
+    sop_expression
 }
