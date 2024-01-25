@@ -27,27 +27,30 @@ fn remove_trailing_plus(expression: &str) -> String {
     modified_expression
 }
 
-// Function to read the number of variables from the user
-fn read_num_variables() -> usize {
+// Function to read the number of variables from the user with error handling
+fn read_num_variables() -> Result<usize, String> {
     println!("Enter the number of variables (up to 4): ");
     let mut num_variables = String::new();
-    io::stdin().read_line(&mut num_variables).expect("Failed to read line");
-    num_variables.trim().parse().expect("Invalid number")
+    io::stdin().read_line(&mut num_variables).map(|_| {
+        num_variables.trim().parse().map_err(|err| err.to_string())
+    }).map_err(|err| err.to_string())
 }
 
-// Function to read truth table rows from the user
+// Function to read truth table rows from the user with error handling
 fn read_truth_table_rows() -> Vec<Vec<u8>> {
     println!("Enter the truth table rows separated by commas: ");
     let mut input_rows = String::new();
     io::stdin().read_line(&mut input_rows).expect("Failed to read line");
 
-    input_rows
+    let rows: Result<Vec<_>, _> = input_rows
         .split(',')
-        .map(|row| row.trim().chars().map(|c| c.to_digit(10).unwrap() as u8).collect())
-        .collect()
+        .map(|row| row.trim().chars().map(|c| c.to_digit(10).ok_or("Invalid digit").map(|d| d as u8)).collect())
+        .collect();
+
+    rows.expect("Invalid input")
 }
 
-// Function to generate and print the Sum of Products logic expression
+// Function to generate and print the Sum of Products logic expression without cloning
 fn generate_and_print_sum_of_products(truth_table: &Vec<Vec<u8>>, variables: &Vec<char>) {
     let sop_expression = sum_of_products(truth_table, variables);
     let modified_expression = remove_trailing_plus(&sop_expression);
@@ -55,13 +58,16 @@ fn generate_and_print_sum_of_products(truth_table: &Vec<Vec<u8>>, variables: &Ve
 }
 
 fn main() {
-    // Read the number of variables
-    let num_variables = read_num_variables();
+    match read_num_variables() {
+        Ok(num_variables) => {
+            let truth_table = read_truth_table_rows();
 
-    // Read truth table rows
-    let truth_table = read_truth_table_rows();
-
-    // Generate and print the Sum of Products logic expression
-    let variable_labels: Vec<char> = (b'A'..(b'A' + num_variables as u8)).map(char::from).collect();
-    generate_and_print_sum_of_products(&truth_table, &variable_labels);
+            let variable_labels: Vec<char> = (b'A'..(b'A' + num_variables as u8)).map(char::from).collect();
+            generate_and_print_sum_of_products(&truth_table, &variable_labels);
+        }
+        Err(err) => {
+            println!("Error: {}", err);
+            std::process::exit(1);
+        }
+    }
 }
