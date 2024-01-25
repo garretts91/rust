@@ -1,0 +1,12 @@
+/home/solomog2/Desktop/rust/dice_roller/target/debug/deps/getrandom-2ba8a7d86335df98.rmeta: /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lib.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error_impls.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util_libc.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/use_file.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lazy.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/linux_android.rs
+
+/home/solomog2/Desktop/rust/dice_roller/target/debug/deps/getrandom-2ba8a7d86335df98.d: /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lib.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error_impls.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util_libc.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/use_file.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lazy.rs /home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/linux_android.rs
+
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lib.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/error_impls.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/util_libc.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/use_file.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/lazy.rs:
+/home/solomog2/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.12/src/linux_android.rs:
