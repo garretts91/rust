@@ -3,7 +3,7 @@ use std::io;
 
 fn main() {
     // Get the logic expression as input
-    println!("Enter the logic expression:");
+    println!("Enter the logic expression (ex. A + B; (A * B) + (/C + D)):");
     let mut expression = String::new();
     io::stdin().read_line(&mut expression).expect("Failed to read line");
 
