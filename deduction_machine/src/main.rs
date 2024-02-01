@@ -1,25 +1,16 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::HashSet;
+use std::io;
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone)] // Derive Clone for Proposition
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 struct Proposition {
     symbol: String,
     negation: bool,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone)] // Derive Clone for Rule
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 struct Rule {
     antecedent: Proposition,
     consequent: Proposition,
-}
-
-// Implement Clone manually for Proposition
-impl Clone for Proposition {
-    fn clone(&self) -> Self {
-        Proposition {
-            symbol: self.symbol.clone(),
-            negation: self.negation,
-        }
-    }
 }
 
 // Function to check if a proposition matches another proposition
@@ -37,7 +28,11 @@ fn apply_rule(rule: &Rule, premises: &HashSet<Proposition>) -> Option<Propositio
 }
 
 // Function to perform deduction and determine validity
-fn validate_deduction(premises: &Vec<Proposition>, deduction: &Proposition, rules: &Vec<Rule>) -> Option<Vec<(Rule, Proposition)>> {
+fn validate_deduction(
+    premises: &Vec<Proposition>,
+    deduction: &Proposition,
+    rules: &Vec<Rule>,
+) -> Option<Vec<(Rule, Proposition)>> {
     let mut current_premises: HashSet<Proposition> = HashSet::new();
     let mut proofs: Vec<(Rule, Proposition)> = Vec::new();
 
@@ -67,34 +62,104 @@ fn validate_deduction(premises: &Vec<Proposition>, deduction: &Proposition, rule
     None
 }
 
-// Function to print the proof
+// Function to print the proof with ASCII substitutes
 fn print_proof(proofs: &Vec<(Rule, Proposition)>) {
     for proof in proofs.iter().rev() {
-        println!("{} {:?} (by rule {:?})", proof.1.symbol, proof.1.negation, proof.0);
+        let substitute_symbol = match &proof.1.symbol[..] {
+            "∧" => "*",
+            "∨" => "+",
+            "→" => ">",
+            "¬" => "~",
+            "∀" => "A",
+            "∃" => "E",
+            "∴" => "R",
+            _ => &proof.1.symbol,
+        };
+        println!(
+            "{} {:?} (by rule {:?})",
+            substitute_symbol, proof.1.negation, proof.0
+        );
     }
 }
 
 fn main() {
-    // Example premises and deduction
-    let premises = vec![
-        Proposition { symbol: "m".to_string(), negation: false },
-        Proposition { symbol: "f".to_string(), negation: false },
-        Proposition { symbol: "s".to_string(), negation: false },
-        Proposition { symbol: "b".to_string(), negation: false },
-        Proposition { symbol: "t".to_string(), negation: false },
-        Proposition { symbol: "j".to_string(), negation: false },
-    ];
+    // Introduction and instructions
+    println!("Welcome to the Deduction Validator!");
+    println!("Please enter your premises one at a time, followed by 'done'.");
+    println!("For example, enter 'p' for 'p' or '¬p' for 'not p'.");
+    println!("Use symbols: ∧ for AND, ∨ for OR, → for IMPLIES, ¬ for NOT, ∀ for FOR ALL, ∃ for EXISTS, ∴ for THEREFORE.");
+    println!("ASCII substitutes: * for ∧, + for ∨, > for →, ~ for ¬, A for ∀, E for ∃, R for ∴.");
+    println!();
 
-    let deduction = Proposition { symbol: "j".to_string(), negation: false };
+    // Read input premises and deduction from the terminal
+    let mut premises: Vec<Proposition> = Vec::new();
 
-    // Example rules
+    loop {
+        println!("Enter premise (or 'done' to finish): ");
+        let input = read_line();
+        if input.trim().to_lowercase() == "done" {
+            break;
+        }
+
+        let proposition = parse_input(input);
+        premises.push(proposition);
+    }
+
+    println!();
+    println!("Great! Now enter your deduction.");
+    println!("For example, enter 'q' for 'q' or '¬q' for 'not q'.");
+    println!();
+
+    println!("Enter deduction: ");
+    let deduction_input = read_line();
+    let deduction = parse_input(deduction_input);
+
+    // Example rules, including Modus Ponens, Modus Tollens, and Law of Syllogism
     let rules = vec![
-        Rule { antecedent: Proposition { symbol: "m".to_string(), negation: false }, consequent: Proposition { symbol: "j".to_string(), negation: false } },
-        Rule { antecedent: Proposition { symbol: "f".to_string(), negation: false }, consequent: Proposition { symbol: "m".to_string(), negation: false } },
-        Rule { antecedent: Proposition { symbol: "b".to_string(), negation: false }, consequent: Proposition { symbol: "t".to_string(), negation: false } },
-        Rule { antecedent: Proposition { symbol: "f".to_string(), negation: false }, consequent: Proposition { symbol: "t".to_string(), negation: true } },
+        Rule {
+            antecedent: Proposition {
+                symbol: "p".to_string(),
+                negation: false,
+            },
+            consequent: Proposition {
+                symbol: "q".to_string(),
+                negation: false,
+            },
+        },
+        Rule {
+            antecedent: Proposition {
+                symbol: "not p".to_string(),
+                negation: true,
+            },
+            consequent: Proposition {
+                symbol: "q".to_string(),
+                negation: false,
+            },
+        },
+        Rule {
+            antecedent: Proposition {
+                symbol: "p".to_string(),
+                negation: false,
+            },
+            consequent: Proposition {
+                symbol: "r".to_string(),
+                negation: false,
+            },
+        },
+        Rule {
+            antecedent: Proposition {
+                symbol: "r".to_string(),
+                negation: false,
+            },
+            consequent: Proposition {
+                symbol: "s".to_string(),
+                negation: false,
+            },
+        },
+        // Add more rules as needed
     ];
 
+    println!();
     // Validate deduction and print proof
     if let Some(proofs) = validate_deduction(&premises, &deduction, &rules) {
         println!("Deduction is valid. Proof:");
@@ -102,4 +167,19 @@ fn main() {
     } else {
         println!("Deduction is invalid or has insufficient information.");
     }
+}
+
+// Helper function to read a line from the terminal
+fn read_line() -> String {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read line");
+    input.trim().to_string()
+}
+
+// Helper function to parse input into Proposition
+fn parse_input(input: String) -> Proposition {
+    let mut chars = input.chars();
+    let symbol = chars.next().expect("Empty input").to_string();
+    let negation = if chars.next() == Some('¬') { true } else { false };
+    Proposition { symbol, negation }
 }
