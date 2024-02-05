@@ -19,45 +19,57 @@ fn proposition_matches(p1: &Proposition, p2: &Proposition) -> bool {
 }
 
 // Function to apply a rule and generate a new proposition
-// Corrected function to apply a rule based on logic deduction
 fn apply_rule(rule: &Rule, premises: &HashSet<Proposition>) -> Option<Proposition> {
-    if premises.contains(&rule.antecedent) {
+    let antecedent = &rule.antecedent;
+    let negated_antecedent = Proposition {
+        symbol: antecedent.symbol.clone(),
+        negation: !antecedent.negation,
+    };
+
+    let result = match &antecedent.symbol[..] {
+        "^" if !antecedent.negation => apply_commutative_law_and(premises),
+        "v" if !antecedent.negation => apply_commutative_law_or(premises),
+        "^" if antecedent.negation => apply_idempotent_law_and(premises),
+        "v" if antecedent.negation => apply_idempotent_law_or(premises),
+        "^" if !antecedent.negation => apply_associative_law_and(premises),
+        "v" if !antecedent.negation => apply_associative_law_or(premises),
+        "^" if !antecedent.negation => apply_distributive_law(premises),
+        "v" if !antecedent.negation => apply_distributive_law(premises),
+        "^" if !antecedent.negation => apply_identity_law_and(premises),
+        "v" if !antecedent.negation => apply_identity_law_or(premises),
+        "^" if antecedent.negation => apply_negation_law_and(premises),
+        "v" if antecedent.negation => apply_negation_law_or(premises),
+        "^" if !antecedent.negation => apply_null_law_and(premises),
+        "v" if !antecedent.negation => apply_null_law_or(premises),
+        "^" if !antecedent.negation => apply_absorption_law_and(premises),
+        "v" if !antecedent.negation => apply_absorption_law_or(premises),
+        "^" if antecedent.negation => apply_demorgans_law_and(premises),
+        "v" if antecedent.negation => apply_demorgans_law_or(premises),
+        "!" if !antecedent.negation => apply_involution_law_not(premises),
+        "->" if !antecedent.negation => apply_modus_ponens(premises),
+        "->" if antecedent.negation => apply_modus_tollens(premises),
+        "v" if !antecedent.negation => apply_disjunctive_addition(premises),
+        "^" if !antecedent.negation => apply_conjunctive_simplification(premises),
+        "v" if antecedent.negation => apply_disjunctive_simplification(premises),
+        "->" if !antecedent.negation => apply_chain_rule(premises),
+        "->" if !antecedent.negation => apply_conditional_equivalence(premises),
+        "<->" if !antecedent.negation => apply_biconditional_equivalences(premises),
+        "->" if !antecedent.negation => apply_contrapositive(premises),
+        _ => None,
+    };
+
+    if let Some(res) = result {
+        Some(res)
+    } else if premises.contains(antecedent) {
         Some(rule.consequent.clone())
+    } else if premises.contains(&negated_antecedent) {
+        Some(Proposition {
+            symbol: rule.consequent.symbol.clone(),
+            negation: !rule.consequent.negation,
+        })
     } else {
         None
     }
-}
-
-// Function to perform deduction and determine validity
-fn validate_deduction(
-    premises: &Vec<Proposition>,
-    deduction: &Proposition,
-    rules: &Vec<Rule>,
-) -> Option<Vec<(Rule, Proposition)>> {
-    let mut current_premises: HashSet<Proposition> = premises.iter().cloned().collect();
-    let mut proofs: Vec<(Rule, Proposition)> = Vec::new();
-
-    while !current_premises.is_empty() {
-        // Apply rules to generate new propositions
-        for rule in rules {
-            if let Some(new_proposition) = apply_rule(rule, &current_premises) {
-                if !current_premises.contains(&new_proposition) && !premises.contains(&new_proposition) {
-                    current_premises.insert(new_proposition.clone());
-                    proofs.push((rule.clone(), new_proposition.clone()));
-
-                    // Check if the deduction is valid
-                    if new_proposition == *deduction {
-                        return Some(proofs);
-                    }
-                }
-            }
-        }
-
-        // This approach might lead to an infinite loop if there's a cycle in rule application
-        // Consider adding logic to prevent re-applying the same rules to the same premises
-    }
-
-    None
 }
 
 
@@ -222,36 +234,21 @@ fn apply_absorption_law(premises: &HashSet<Proposition>) -> Option<Proposition> 
     None
 }
 
-// function to apply DeMorgans Law
-fn apply_demorgans_law(premises: &HashSet<Proposition>) -> Option<HashSet<Proposition>> {
-    let mut result = HashSet::new();
-
-    for prop in premises {
-        if prop.negation && (prop.symbol.contains("∨") || prop.symbol.contains("∧")) {
-            // Identify the type of operation and split symbols
-            let is_or_operation = prop.symbol.contains("∨");
-            let inner_symbols = prop.symbol.trim_matches(|c: char| c == '¬' || c == '(' || c == ')').split(if is_or_operation { "∨" } else { "∧" }).collect::<Vec<_>>();
-
-            // Create new propositions with negated symbols
-            let transformed_props = inner_symbols.iter().map(|&symbol| Proposition {
-                symbol: symbol.to_string(),
-                negation: true, // Negate the inner propositions
-            }).collect::<Vec<_>>();
-
-            // Combine transformed propositions with the opposite connector
-            let combined_symbol = transformed_props.iter().map(|p| p.symbol.clone()).collect::<Vec<_>>().join(if is_or_operation { "∧" } else { "∨" });
-            
-            // Assuming we're handling propositions as single symbols without internal structure for this example
-            result.insert(Proposition {
-                symbol: combined_symbol, // This simplistic approach doesn't handle nested structures or parentheses.
-                negation: false, // The result of applying DeMorgan's is not negated
-            });
+// Function to apply DeMorgan's Law for ∧ and ∨
+fn apply_demorgans_law(premises: &HashSet<Proposition>) -> Option<Proposition> {
+    // Assuming ¬(p∧q)⇔(¬p)∨(¬q), find matching patterns
+    for prop1 in premises {
+        for prop2 in premises {
+            if prop1.symbol == prop2.symbol {
+                return Some(Proposition {
+                    symbol: format!("¬{}", prop1.symbol),
+                    negation: true,
+                });
+            }
         }
     }
-
-    if !result.is_empty() { Some(result) } else { None }
+    None
 }
-
 
 // Function to apply Involution Law for ¬
 fn apply_involution_law(premises: &HashSet<Proposition>) -> Option<Proposition> {
@@ -442,17 +439,52 @@ fn apply_contrapositive(premises: &HashSet<Proposition>) -> Option<Proposition> 
     None
 }
 
+// Function to perform deduction and determine validity
+fn validate_deduction(
+    premises: &Vec<Proposition>,
+    deduction: &Proposition,
+    rules: &Vec<Rule>,
+) -> Option<Vec<(Rule, Proposition)>> {
+    let mut current_premises: HashSet<Proposition> = HashSet::new();
+    let mut proofs: Vec<(Rule, Proposition)> = Vec::new();
+
+    // Start with the last premise
+    current_premises.insert(premises.last().unwrap().clone());
+
+    while !current_premises.is_empty() {
+        let current_proposition = current_premises.iter().next().unwrap().clone();
+        current_premises.remove(&current_proposition);
+
+        // Apply rules to generate new propositions
+        for rule in rules {
+            if let Some(new_proposition) = apply_rule(rule, &current_premises) {
+                if !premises.contains(&new_proposition) {
+                    current_premises.insert(new_proposition.clone());
+                    proofs.push((rule.clone(), new_proposition.clone()));
+
+                    // Check if the deduction is valid
+                    if is_deduction_within_complex(&new_proposition, deduction) {
+                        return Some(proofs);
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
 // Function to print the proof with ASCII substitutes
 fn print_proof(proofs: &Vec<(Rule, Proposition)>) {
     for proof in proofs.iter().rev() {
         let substitute_symbol = match &proof.1.symbol[..] {
-            "∧" => "*",
-            "∨" => "+",
-            "→" => ">",
-            "~" => "!",
-            "∀" => "A",
-            "∃" => "E",
-            "∴" => "R",
+            "*" => "∧",
+            "v" => "∨",
+            ">" => "→",
+            "!" => "~",
+            "A" => "∀",
+            "E" => "∃",
+            "R" => "∴",
             _ => &proof.1.symbol,
         };
         println!(
@@ -468,7 +500,7 @@ fn main() {
     println!("Please enter your premises one at a time, followed by 'done'.");
     println!("For example, enter 'p' for 'p' or '¬p' for 'not p'.");
     println!("Use symbols: ∧ for AND, ∨ for OR, → for IMPLIES, ¬ for NOT, ∀ for FOR ALL, ∃ for EXISTS, ∴ for THEREFORE.");
-    println!("ASCII substitutes: * for ∧, + for ∨, > for →, ~ for ¬, A for ∀, E for ∃, R for ∴.");
+    println!("ASCII substitutes: * for ∧, v for ∨, > for →, ! for ¬, A for ∀, E for ∃, R for ∴.");
     println!();
 
     // Read input premises and deduction from the terminal
@@ -584,18 +616,25 @@ where
         } else {
             // Consume the operator and add it to the symbol
             let operator_str = match operator {
-                '∧' => "*",
-                '∨' => "+",
-                '→' => ">",
-                '¬' => "~",
-                _ => &operator.to_string(),
+                '*' => "∧".to_string(),
+                'v' => "∨".to_string(),
+                '>' => "→".to_string(),
+                '!' => "~".to_string(),
+                'A' => "∀".to_string(),
+                'E' => "∃".to_string(),
+                'R' => "∴".to_string(),
+                _ => operator.to_string(),
             };
+            
             return Proposition {
-                symbol: format!("{}{}{}", symbol, operator_str, chars.next().unwrap()),
+                symbol: format!("{}{}", symbol, operator_str),
                 negation,
             };
         }
     }
 
-    Proposition { symbol, negation }
+    Proposition {
+        symbol,
+        negation,
+    }
 }
