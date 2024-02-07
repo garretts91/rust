@@ -1,0 +1,6 @@
+$ mkdir -p "X:\\Users\\grrtt\\source\\repos\\rust\\pi_testing\\target\\debug\\build\\az-ec5608c1869bdbc3\\out\\try_track_caller"
+$ cd "X:\\Users\\grrtt\\source\\repos\\rust\\pi_testing\\target\\debug\\build\\az-ec5608c1869bdbc3\\out\\try_track_caller"
+$ printf '%s' "// try_tra"... > "X:\\Users\\grrtt\\source\\repos\\rust\\pi_testing\\target\\debug\\build\\az-ec5608c1869bdbc3\\out\\try_track_caller\\try_track_caller.rs"
+$ "rustc" "try_track_caller.rs" "--emit=dep-info,metadata" >& /dev/null
+cargo:rustc-cfg=track_caller
+$ rm -r "X:\\Users\\grrtt\\source\\repos\\rust\\pi_testing\\target\\debug\\build\\az-ec5608c1869bdbc3\\out\\try_track_caller"

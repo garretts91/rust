@@ -1,138 +1,86 @@
 use std::io;
-use rug::float::Round;
-use rug::ops::DivAssignRound;
-use rug::ops::Pow;
-use rug::Float;
-
-use rug::Rational;
-use rug::Integer;
-use core::cmp::Ordering;
 
 fn fibonacci(n: u32) -> u32 {
     match n {
-        0 => 1,
+        0 => 0,
         1 => 1,
         _ => fibonacci(n - 1) + fibonacci(n - 2),
     }
 }
 
-fn factorial(num: u64) -> u64 {
-    match num {
-        0 | 1=> 1,
-        _ => factorial(num - 1) * num,
+// Finds factorial for given number
+fn factorial(x: u64) -> f64 {
+    if x == 0 {
+        1.0
+    } else {
+        (1..=x).fold(1.0, |acc, n| acc * n as f64)
     }
 }
 
-fn _rational_to_float(ration: &Rational ,precision: u32) -> Float {
-    let numer = ration.numer();
-    let denom = ration.denom();
-    let mut fl = Float::with_val(precision, numer);
-    let _ = fl.div_assign_round(denom, Round::Zero);
-    fl
-}
-
-fn _leibniz_rational(precision: u32) -> Float {
-    let mut pi = Rational::from((0,1));
-    let mut i = Integer::from(0);
-    let four = Integer::from(4);
-    let zero = Integer::from(0);
-    
-    loop {
-        if i.mod_u(175000) == 0 {
-            let pi_float = _rational_to_float(&pi, precision);
-            match pi_float.get_exp() {
-                Some(num) if num > precision as i32 => break,
-                _ => (),
-            }
-            println!("pi: {}, iteration: {}", pi_float, i);
-        }
-        let next_denom = Integer::from(&i * 2) + Integer::from(1);
-        let next_rational = Rational::from((&four, &next_denom));
-        if Integer::from(&i % 2).cmp(&zero) == Ordering::Equal {
-            pi += next_rational;
-        } else {
-            pi -= next_rational;
-        }
-
-        i += 1;
-    }
-
-    _rational_to_float(&pi, precision)
-}
-
-fn _leibniz(precision: u32) -> Float {
-    let _zero = Float::with_val(precision, 0);
-    let mut pi = Float::with_val(precision, 0);
-    let mut i = 0;
+// Ramanujan formula for pi calculation
+fn ramanujan_pi(digits: usize) -> String {
+    let mut sum = 0.0;
+    let mut n = 0;
+    let i = f64::sqrt(8.0) / 9801.0;
+    let precision = 10_f64.powi(-(digits as i32));
 
     loop {
-        let mut next = Float::with_val(precision, 4);
-        let next_div = Float::with_val(precision, i * 2 + 1);
-        let _next_dir = next.div_assign_round(next_div, Round::Zero);
-        if i % 175000 == 0 {
-            let exp = next.get_exp().unwrap();
-            if exp.abs() > precision as i32 {
-                break;
-            }
-            
-            //println!("{}, {}", pi, next);
-            println!("pi: {}, iteration: {}", pi, i);
-        }
+        let tmp = i * (factorial(4 * n) / (factorial(n).powi(4)))
+            * ((26390 * n as i32 + 1103) as f64 / 396_f64.powi(4 * n as i32));
+        sum += tmp;
 
-        if i % 2 == 0 {
-            pi += next;
-        } else {
-            pi -= next;
-        }
-        i += 1;
-    }
-    pi
-}
-
-// https://en.wikipedia.org/wiki/Chudnovsky_algorithm
-fn _chudnovski(precision: u32) -> Float {
-    let mut big_k = Integer::from(6);
-    let mut x = Integer::from(1);
-    let mut m = Integer::from(1);
-    let mut l = Integer::from(13591409);
-    let mut sum = Float::with_val(precision, 13591409);
-    let mut small_k = Integer::from(0);
-
-    loop {
-        let k_3 = Integer::from((&big_k).pow(3));
-        m = Integer::from(&k_3 - (16 * &big_k)) * &m / &k_3;
-        l += 545140134;
-        x *= -262537412640768000_i64;
-        sum += Float::with_val(precision, Integer::from(&m * &l) / &x);
-        big_k += 12;
-        small_k += 1;
-
-        if small_k > 100000 {
+        if tmp.abs() < precision {
             break;
         }
+        n += 1;
     }
 
-    let c = Float::with_val(precision, 10005).root(2) * 426880;
-    let pi : Float = &c / sum;
-    //println!("{}", c);
-    pi
+    format!("{:.1$}", 1.0 / sum, digits)
 }
 
 fn main() {
-    println!("Recursion, Series, Irrational Numbers!");
-    
-    let precision = 100;
-    let _one = Float::with_val(precision, 1);
-    let pi = _chudnovski(precision);
+    loop {
+        println!("Recursion, Series, Irrational Numbers!");
+        println!("Choose an option:");
+        println!("1. Fibonacci Sequence");
+        println!("2. Factorial");
+        println!("3. Calculate Pi");
+        println!("4. Exit");
 
-    let pi_string = pi.to_string_radix(10, None);
-    let mut pi_string = pi.to_string_radix(10, Some(pi_string.len() - 3));
-    pi_string.pop();
-    println!("{}", pi_string);
+        let mut choice = String::new();
+        io::stdin().read_line(&mut choice).expect("Failed to read line");
+        let choice: u32 = match choice.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue, // If parsing fails, prompt the menu again
+        };
 
-    println!("{}", fibonacci(5));
-    println!("{}", factorial(5));
-
-
-
+        match choice {
+            1 => {
+                println!("Enter the value of n for Fibonacci sequence:");
+                let mut input = String::new();
+                io::stdin().read_line(&mut input).expect("Failed to read line");
+                let n: u32 = input.trim().parse().expect("Please enter a number");
+                println!("Fibonacci({}) = {}", n, fibonacci(n));
+            },
+            2 => {
+                println!("Enter the value of n for factorial:");
+                let mut input = String::new();
+                io::stdin().read_line(&mut input).expect("Failed to read line");
+                let n: u64 = input.trim().parse().expect("Please enter a number");
+                println!("Factorial({}) = {}", n, factorial(n));
+            },
+            3 => {
+                println!("Enter the number of digits of Pi you want to calculate (up to 15 digits; if its good enough for NASA its good enough for this program):");
+                let mut input = String::new();
+                io::stdin().read_line(&mut input).expect("Failed to read line");
+                let digits: usize = input.trim().parse().expect("Please enter a number");
+                println!("Value of Pi with {} digits is: {}", digits, ramanujan_pi(digits));
+            },
+            4 => {
+                println!("Goodbye.");
+                break;
+            },
+            _ => println!("Invalid option, please enter a number 1-4."),
+        }
+    }
 }
