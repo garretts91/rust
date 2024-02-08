@@ -70,7 +70,7 @@ fn main() {
                 println!("Factorial({}) = {}", n, factorial(n));
             },
             3 => {
-                println!("Enter the number of digits of Pi you want to calculate (up to 15 digits; if its good enough for NASA its good enough for this program):");
+                println!("Enter the number of digits of Pi you want to calculate (up to 15 digits:");
                 let mut input = String::new();
                 io::stdin().read_line(&mut input).expect("Failed to read line");
                 let digits: usize = input.trim().parse().expect("Please enter a number");
