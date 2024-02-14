@@ -1,3 +1,5 @@
+// TODO: Implement Table C, update main to include a,b, a,c, b,c 
+
 use std::collections::HashSet;
 use std::io::{self, BufRead};
 
