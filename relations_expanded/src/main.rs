@@ -25,7 +25,7 @@ fn is_antisymmetric<T: PartialEq>(pairs: &[(T, T)]) -> bool {
     pairs.iter().all(|(x, y)| x == y || !pairs.iter().any(|(a, b)| y == a && x == b))
 }
 
-fn is_equivalence<T: PartialEq + Clone>(pairs: &[(T, T)], set: &[T]) -> bool {
+fn is_equivalent<T: PartialEq + Clone>(pairs: &[(T, T)], set: &[T]) -> bool {
     is_reflexive(pairs, set) && is_symmetric(pairs) && is_transitive(pairs)
 }
 
@@ -56,7 +56,7 @@ fn main() {
     println!("Is symmetric: {}", is_symmetric(&pairs1));
     println!("Is transitive: {}", is_transitive(&pairs1));
     println!("Is antisymmetric: {}", is_antisymmetric(&pairs1));
-    println!("Is equivalence: {}", is_equivalence(&pairs1, &set1));
+    println!("Is equivalence: {}", is_equivalent(&pairs1, &set1));
     println!();
 
     println!("Set 2:");
@@ -74,7 +74,7 @@ fn main() {
     println!("Is symmetric: {}", is_symmetric(&pairs2));
     println!("Is transitive: {}", is_transitive(&pairs2));
     println!("Is antisymmetric: {}", is_antisymmetric(&pairs2));
-    println!("Is equivalence: {}", is_equivalence(&pairs2, &set2));
+    println!("Is equivalence: {}", is_equivalent(&pairs2, &set2));
     println!();
 
     println!("Set 3:");
@@ -92,7 +92,7 @@ fn main() {
     println!("Is symmetric: {}", is_symmetric(&pairs3));
     println!("Is transitive: {}", is_transitive(&pairs3));
     println!("Is antisymmetric: {}", is_antisymmetric(&pairs3));
-    println!("Is equivalence: {}", is_equivalence(&pairs3, &set3));
+    println!("Is equivalence: {}", is_equivalent(&pairs3, &set3));
     println!();
 
     println!("Set 4:");
@@ -110,7 +110,7 @@ fn main() {
     println!("Is symmetric: {}", is_symmetric(&pairs4));
     println!("Is transitive: {}", is_transitive(&pairs4));
     println!("Is antisymmetric: {}", is_antisymmetric(&pairs4));
-    println!("Is equivalence: {}", is_equivalence(&pairs4, &set4));
+    println!("Is equivalence: {}", is_equivalent(&pairs4, &set4));
 
     println!("Enter pairs as tuples (x, y), one per line. Enter an empty line to finish:");
     let mut pairs = Vec::new();
@@ -138,6 +138,6 @@ fn main() {
     println!("Is symmetric: {}", is_symmetric(&pairs));
     println!("Is transitive: {}", is_transitive(&pairs));
     println!("Is antisymmetric: {}", is_antisymmetric(&pairs));
-    println!("Is equivalence: {}", is_equivalence(&pairs, &set));
+    println!("Is equivalence: {}", is_equivalent(&pairs, &set));
 
 }
