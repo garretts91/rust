@@ -15,7 +15,7 @@ fn main() {
 fn search_addresses_in_text_files() {
     let file_content = fs::read_to_string("X:\\Users\\grrtt\\source\\repos\\rust\\reg_ex\\sample_text_file.txt").expect("Failed to read file");
 
-    // Regular expression for detecting addresses (simplified for demonstration)
+    // Regular expression for detecting addresses 
     let address_regex = Regex::new(r"[^\n]+").unwrap();
 
     println!("Addresses found:");
@@ -27,7 +27,7 @@ fn search_addresses_in_text_files() {
 fn search_log_files_for_events_of_interest() {
     let log_content = fs::read_to_string("X:\\Users\\grrtt\\source\\repos\\rust\\reg_ex\\sample_log_file.txt").expect("Failed to read log file");
 
-    // Regular expressions for events of interest
+    // Regular expression for events of interest
     let event_regex = Regex::new(r"(ERROR|INFO|DEBUG): (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - (Event \d{3}): (.+)").unwrap();
 
     println!("Events of interest found:");
