@@ -13,7 +13,7 @@ fn main() {
 }
 
 fn search_addresses_in_text_files() {
-    let file_content = fs::read_to_string("X:\\Users\\grrtt\\source\\repos\\rust\\reg_ex\\sample_text_file.txt").expect("Failed to read file");
+    let file_content = fs::read_to_string("C:\\path\\to\\sample_text_file.txt").expect("Failed to read file");
 
     // Regular expression for detecting addresses 
     let address_regex = Regex::new(r"[^\n]+").unwrap();
@@ -25,7 +25,7 @@ fn search_addresses_in_text_files() {
 }
 
 fn search_log_files_for_events_of_interest() {
-    let log_content = fs::read_to_string("X:\\Users\\grrtt\\source\\repos\\rust\\reg_ex\\sample_log_file.txt").expect("Failed to read log file");
+    let log_content = fs::read_to_string("C:\\path\\to\\sample_log_file.txt").expect("Failed to read log file");
 
     // Regular expression for events of interest
     let event_regex = Regex::new(r"(ERROR|INFO|DEBUG): (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - (Event \d{3}): (.+)").unwrap();
@@ -41,7 +41,7 @@ fn search_log_files_for_events_of_interest() {
 }
 
 fn format_phone_numbers_from_file() {
-    let file_content = fs::read_to_string("X:\\Users\\grrtt\\source\\repos\\rust\\reg_ex\\sample_phone_numbers_file.txt").expect("Failed to read phone number file");
+    let file_content = fs::read_to_string("C:\\path\\to\\sample_phone_numbers_file.txt").expect("Failed to read phone number file");
 
     // Regular expression for finding phone numbers and their associated country names
     let phone_regex = Regex::new(r"(\+\d{1,3}\s?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4})\s\((.*?)\)").unwrap();
