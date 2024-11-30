@@ -1,42 +1,61 @@
-//use std::io::{self, Write};
+use num_bigint::BigUint;
+use num_traits::{One, ToPrimitive};
 
-fn fibonacci(n: u32) -> u32 {
-    match n {
-        0 => 0,
-        1 => 1,
-        _ => fibonacci(n - 1) + fibonacci(n - 2),
+/// Optimized Fibonacci function (iterative approach)
+fn fibonacci(n: u32) -> u64 {
+    let mut a = 0;
+    let mut b = 1;
+    for _ in 0..n {
+        let temp = a + b;
+        a = b;
+        b = temp;
     }
+    a
 }
 
-// fn factorial(x: u64) -> f64 {
-//     if x == 0 {
-//         1.0
-//     } else {
-//         (1..=x).fold(1.0, |acc, n| acc * n as f64)
-//     }
-// }
+/// Optimized Factorial function using arbitrary precision
+fn factorial(x: u64) -> BigUint {
+    (1..=x).fold(BigUint::one(), |acc, n| acc * BigUint::from(n))
+}
 
 fn main() {
-    // // Stress test for Fibonacci until it panics due to stack overflow or hits a limit
+    // Fibonacci Stress Test
     let mut n = 0;
+    println!("Starting Fibonacci Stress Test...");
     loop {
-        match fibonacci(n) {
-            _ => println!("Fibonacci({}) calculated successfully.", n),
+        let result = fibonacci(n);
+        
+        // Log every 10th Fibonacci number
+        if n % 10 == 0 {
+            println!("Fibonacci({}): {}", n, result);
         }
+
+        // Stop if overflow is about to occur
+        if result > u64::MAX / 2 {
+            println!("Fibonacci({}) caused overflow!", n);
+            break;
+        }
+
         n += 1;
-        if n == u32::MAX {
-            break; // This prevents an infinite loop; realistically, stack overflow will occur first
-        }
     }
 
-    // // Stress test for Factorial until it reaches infinity
-    // let mut x = 0;
-    // loop {
-    //     let result = factorial(x);
-    //     if result.is_infinite() {
-    //         println!("Factorial({}) reached infinity.", x);
-    //         break;
-    //     }
-    //     x += 1;
-    // }
+    // Factorial Stress Test
+    let mut x = 0;
+    println!("\nStarting Factorial Stress Test...");
+    loop {
+        let result = factorial(x);
+
+        // Log every 5th Factorial number
+        if x % 5 == 0 {
+            println!("Factorial({}): {}", x, result);
+        }
+
+        // Stop if the number of bits exceeds 10,000
+        if result.bits() > 10_000 {
+            println!("Factorial({}) exceeded 10,000 bits!", x);
+            break;
+        }
+
+        x += 1;
+    }
 }
